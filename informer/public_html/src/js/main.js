@@ -4,8 +4,7 @@
  * and open the template in the editor.
  */
 /* global updatePage */
-
-var url = 'http://localhost:8080/task/api/';
+"use strict";
 var listCompany = [];
 var listDepartment = [];
 var listEmployees = [];
@@ -17,32 +16,10 @@ $(document).ready(function (){
     checkSelectDepartment();
     loadCompany();
     loadDepartment();
-    /* if (null === sessionStorage.getItem('company')){
-        sessionStorage.setItem('company', company);
-    }
-    selectedCompany = company;
-    
-    fillTable();
-    */
 });
 
-function  loadCompany(){
-    var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
-    var xhr = new XHR();
-    xhr.open('GET', url + 'crunchifyService');
-    xhr.onload = function() {
-        listCompany = JSON.parse(this.responseText);
-        fillCompany();
-    };
-    xhr.onerror = function() {
-        alert( 'Ошибка ' + this.status );
-    };
-    xhr.send();
-};
-
 function  setTitle(){
-    $('title').empty();
-    $('title').append(selectedCompany.name);
+    $('title').text(selectedCompany.name);
 }
 
 function  fillCompany(){
@@ -66,34 +43,17 @@ function checkSelectedCompany(){
     }
 };
 
-function loadDepartment(){
-    var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
-    var xhr = new XHR();
-    xhr.open('GET', url + 'loadDepartments');
-    xhr.onload = function() {
-        listDepartment.length = 0;
-        listDepartment = JSON.parse(this.responseText);
-        fillDepartment();
-        fillDeaprtmentInfo();
-        checkSelectDepartment();
-        loadEmployees();
-    };
-    xhr.onerror = function() {
-        alert( 'Ошибка ' + this.status );
-    };
-    xhr.send();
-};
-
 function fillDepartment(){
     for (var index = 0; index < listDepartment.length; index++  ){
         var department = listDepartment[index];
-        $('#menuDepartment').append('<a href="#" id="department_'+ index +'" class="list-group-item">'+ department.name +'</a>');
+        $('#menuDepartment').append('<a href="#" data-department="'+ index +'" class="list-group-item">'+ department.name +'</a>');
     }
     $('#menuDepartment > a:first').addClass('active');
     $('#menuDepartment > a').on('click', clickDepartmentMenu);
 };
-function clickDepartmentMenu($event){
-    sessionStorage.setItem('department', $event.currentTarget.id.split('_')[1]);
+
+function clickDepartmentMenu(){
+    sessionStorage.setItem('department', $(this).attr("data-department"));
     fillDeaprtmentInfo();
     loadEmployees();
 };
@@ -108,35 +68,15 @@ function checkSelectDepartment(){
 
 function fillDeaprtmentInfo(){
     checkSelectDepartment();
-    $('#nameDepartment').empty();
-    $('#nameDepartment').append(selectedDeaprtment.name);
-    $('#numberPhone').empty();
-    $('#numberPhone').append(selectedDeaprtment.phone);
-    $('#numberFax').empty();
-    $('#numberFax').append(selectedDeaprtment.fax);
+    $('#nameDepartment').text(selectedDeaprtment.name);
+    $('#numberPhone').text(selectedDeaprtment.phone);
+    $('#numberFax').text(selectedDeaprtment.fax);
 };
 
 function compareEmployee(empl1, empl2){
     if (empl1.importance > empl2.importance) return 1;
     if (empl1.importance < empl2.importance) return -1;
 };
-
-function loadEmployees(){
-    var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
-    var xhr = new XHR();
-    xhr.open('GET', url + 'loadEmployes/' + selectedDeaprtment.idDepartment);
-    xhr.onload = function() {
-        listEmployees.length = 0;
-        listEmployees = JSON.parse(this.responseText);
-        fillTable();
-    };
-    xhr.onerror = function() {
-        alert( 'Ошибка ' + this.status );
-    };
-    xhr.send();
-};
-
-
 
 function fillTable(){
     $('#infoEmployees tr:not(:first)').remove();
